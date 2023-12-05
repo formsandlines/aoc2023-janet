@@ -19,7 +19,6 @@
 
 (defn find-first-line-len [input] (+ 1 (peg/find "\n" input)))
 
-
 (defn symbol-adjacent-to-num? [line-len row from to i]
   (let [i-row (div i line-len)
 	i-col (% i line-len)
@@ -27,6 +26,7 @@
 		       (> i-col (- from 2))
 		       (< i-col (+ to 1)))]
     adjacent?))
+
 
 (defn filter-part-numbers [line-len {:nums nums :symbs symbs}]
   (let [symbol-idxs (map first symbs)]
