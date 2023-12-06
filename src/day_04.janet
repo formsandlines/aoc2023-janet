@@ -7,18 +7,38 @@
     :lines (group (* "Card" :s+ :d+ ":" :s+ :nums "|" :s+ :nums))
     :main  (some :lines)})
 
+(defn count-winning-matches [[winnums mynums]]
+  (let [matches (filter (partial has-value? mynums) winnums)]
+    (length matches)))
+
+
 (defn solve1 [input]
   (->> (peg/match cards-peg input)
-       (map (fn [[winnums mynums]]
-	      (let [matches (filter (partial has-value? mynums) winnums)
-		    n       (length matches)]
-		(when (> n 0)
-		  (math/pow 2 (dec n))))))
+       (map count-winning-matches)
+       (map |(when (> $ 0) (math/pow 2 (dec $))))
        (filter (comp not nil?))
        sum))
 
+
+(defn count-all-cards [matching-nums]
+  (let [total (length matching-nums)
+	cards (range total)
+	copy-cards |(array/slice cards $0 $1)]
+    ((fn rec [cards]
+       (reduce (fn [acc i]
+		 (let [num  (matching-nums i)
+		       from (+ i 1)
+		       to   (+ from num)]
+		   (if (< from to total)
+		     (+ 1 acc (rec (copy-cards from to)))
+		     (+ 1 acc))))
+	       0 cards))
+     cards)))
+
 (defn solve2 [input]
-  nil)
+  (->> (peg/match cards-peg input)
+       (map count-winning-matches)
+       count-all-cards))
 
 (defn main [& args]
   (print (solve1 input))
@@ -42,7 +62,9 @@ Card 5: 87 83 26 28 32 | 88 30 70 12 93 22 82 36
 Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11
 ` "\n"))
  
- (peg/match cards-peg sample)
+ (->> (peg/match cards-peg sample)
+      (map count-winning-matches)
+      count-all-cards)
 
  (def cards
    (peg/match
@@ -59,7 +81,6 @@ Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11
 	       (when (> n 0)
 		 (math/pow 2 (dec n))))))
       (filter (comp not nil?))
-      sum
-      )
+      sum)
 
  )
