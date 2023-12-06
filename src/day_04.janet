@@ -35,6 +35,7 @@
 	       0 cards))
      cards)))
 
+## challenge: can this be solved in linear time?
 (defn solve2 [input]
   (->> (peg/match cards-peg input)
        (map count-winning-matches)
