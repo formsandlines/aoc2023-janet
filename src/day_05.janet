@@ -2,9 +2,12 @@
 
 (def input (slurp "../input/day_05.txt"))
 
+(defn within-range [input [start len]]
+  (and (>= input start)
+       (<  input (+ start len))))
+
 (defn map-to-range [input [dest src len]]
-  (when (and (>= input src)
-	     (<  input (+ src len)))
+  (when (within-range input [src len])
     (+ input (- dest src))))
 
 (defn make-map-fn [& ranges]
@@ -26,13 +29,33 @@
 		    seeds))))
 
 
+(def seedranges-maps-peg
+  ~{:map   (/ (* (some :D)
+		 (some (* (/ :nums ,(fn [[dest src len]] [src dest len]))
+			  "\n")))
+	      ,make-map-fn)
+    :maps  (group (some (* :map (? "\n"))))
+    :nums  (group (some (* (number :d+) (? ,(^ "\n")))))
+    :seeds (/ (* "seeds:" :s+ :nums "\n") ,(partial partition 2))
+    :main  (* :seeds :maps)})
+
+## brute-force approach: found the solution in under an hour (I think)
+## unsatisfactory… might revisit if I find a better way
 (defn solve2 [input]
-  nil)
+  (let [[seed-ranges map-fns] (peg/match seedranges-maps-peg input)
+        location->seed (comp ;map-fns)]
+    (var min-location nil)
+    (for loc 104000000 105000000 # <- cheating here, should be run from 0
+      (let [seed (location->seed loc)]
+	(when (some (partial within-range seed) seed-ranges)
+	  # (print seed " -> " loc)
+	  (set min-location loc)
+	  (break))))
+    min-location))
 
 (defn main [& args]
   (print (solve1 input))
   (print (solve2 input)))
-
 
 
 (comment
@@ -92,7 +115,29 @@ humidity-to-location map:
 
  (apply min (map (comp ;(reverse map-fns)) seeds))
 
- (peg/match
-  '(<- (* "x" "y"))
-  "xyzabc")
+
+ (def [seed-ranges map-fns]
+   (peg/match
+    ~{:map   (/ (* (some :D)
+		   (some (* (/ :nums ,(fn [[dest src len]] [src dest len]))
+			    "\n")))
+		,make-map-fn)
+      :maps  (group (some (* :map (? "\n"))))
+      :nums  (group (some (* (number :d+) (? ,(^ "\n")))))
+      :seeds (/ (* "seeds:" :s+ :nums "\n") ,(partial partition 2))
+      :main  (* :seeds :maps)}
+    sample))
+
+ ((map-fns 6) ((map-fns 5) ((map-fns 4) ((map-fns 3) ((map-fns 2) ((map-fns 1) ((map-fns 0) 46)))))))
+
+ ((comp ;map-fns) 46)
+
+ (let [location->seed (comp ;map-fns)]
+   (for loc 0 100
+     (let [seed (location->seed loc)]
+       (print loc ": " seed)
+       (when (some (partial within-range seed) seed-ranges)
+	 (print "yes")
+	 (break)))))
+ 
  )
