@@ -25,16 +25,27 @@
 (defn ^ [pat]
   ~(* (! ,pat) 1))
 
+(defn map-indexed
+  "`map` with an additional index (first arg), like in Clojure.
+Unlike in Clojure, takes an additional integer `from` as the starting index."
+  [f from ind]
+  (let [to (+ from (length ind))]
+    (map f (range from to) ind)))
+
 
 (comment
- (let [x @{:a 1 :b 2}
-       y @{:a 3 :b 1 :c 4}]
-   (merge-with + x y))
- # @{:a 4 :b 3 :c 4}
+  (let [x @{:a 1 :b 2}
+	y @{:a 3 :b 1 :c 4}]
+    (merge-with + x y))
+  # @{:a 4 :b 3 :c 4}
 
- (put-resolve @{:a 1 :b 2} :b 3 +)
- (put-resolve @{:a 1 :b 2} :c 3 +)
+  (put-resolve @{:a 1 :b 2} :b 3 +)
+  (put-resolve @{:a 1 :b 2} :c 3 +)
 
- (merge-entries-with + @[[:a 1] [:b 2] [:a 3]])
+  (merge-entries-with + @[[:a 1] [:b 2] [:a 3]])
 
- )
+  (map-indexed tuple 1 ['a 'b 'c])
+
+  
+
+  )
