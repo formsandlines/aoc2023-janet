@@ -32,6 +32,25 @@ Unlike in Clojure, takes an additional integer `from` as the starting index."
   (let [to (+ from (length ind))]
     (map f (range from to) ind)))
 
+(defn max-pair
+  "Returns the (first) key-value pair that matches the result of `max` applied
+to all values in the associative data-structure."
+  [dict]
+  (let [pairs (pairs dict)]
+    (var max-pair (first pairs))
+    (each [k v] pairs
+      (when (> v (max-pair 1))
+	(set max-pair [k v])))
+    max-pair))
+
+(defn dissoc [tab k]
+  "Returns a new table without the given key, like in Clojure (but much less
+efficient)."
+  (do
+    (var t (table/clone tab))
+    (put t k nil)
+    t))
+
 
 (comment
   (let [x @{:a 1 :b 2}
@@ -47,5 +66,12 @@ Unlike in Clojure, takes an additional integer `from` as the starting index."
   (map-indexed tuple 1 ['a 'b 'c])
 
   
+  (max-pair {:a 2 :b 5 :c 4})
+
+  (let [ds @{:a 2 :b 5 :c 4}]
+    (do (var t (table/clone ds))
+      (put t :b nil)
+      t)
+    ds)
 
   )
