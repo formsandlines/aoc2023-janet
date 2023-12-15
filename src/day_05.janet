@@ -54,8 +54,8 @@
     min-location))
 
 (defn main [& args]
-  (print (solve1 input))
-  (print (solve2 input)))
+  (aoc-print 5 1 (solve1 input) 324724204)
+  (aoc-print 5 2 (solve2 input) 104070862))
 
 
 (comment

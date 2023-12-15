@@ -29,9 +29,10 @@
        (map (fn [[_ v]] (product (values v))))
        sum))
 
+
 (defn main [& args]
-  (print (solve1 input))
-  (print (solve2 input)))
+  (aoc-print 2 1 (solve1 input) 2727)
+  (aoc-print 2 2 (solve2 input) 56580))
 
 
 

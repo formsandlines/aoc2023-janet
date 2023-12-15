@@ -1,3 +1,11 @@
+(defn aoc-print [day part result solution]
+  (print "✨ Day " day ", part " part)
+  (print "   Result: " result)
+  (if (= result solution)
+    (print "   Correct, yay!")
+    (print "   Incorrect, oh noes! Expected: " solution))
+  (print))
+
 (defn table-from-entries [entries]
   (table ;(flatten entries)))
 

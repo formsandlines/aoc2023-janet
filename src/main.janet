@@ -1,0 +1,18 @@
+(import ./day_01 :fresh true)
+(import ./day_02 :fresh true)
+(import ./day_03 :fresh true)
+(import ./day_04 :fresh true)
+(import ./day_05 :fresh true)
+(import ./day_06 :fresh true)
+(import ./day_07 :fresh true)
+
+(defn main [& args]
+  (print "🎄 Advent of Code 2023 🎄")
+  (print)
+  (day_01/main)
+  (day_02/main)
+  (day_03/main)
+  (day_04/main)
+  (day_05/main)
+  (day_06/main)
+  (day_07/main))

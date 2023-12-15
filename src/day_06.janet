@@ -32,8 +32,8 @@
 
 
 (defn main [& args]
-  (print (solve1 input))
-  (print (solve2 input)))
+  (aoc-print 6 1 (solve1 input) 293046)
+  (aoc-print 6 2 (solve2 input) 35150181))
 
 
 
