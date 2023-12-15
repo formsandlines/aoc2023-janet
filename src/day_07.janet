@@ -2,65 +2,83 @@
 
 (def input (slurp "../input/day_07.txt"))
 
-(def card-lbls
-  ["A" "K" "Q" "J" "T" "9" "8" "7" "6" "5" "4" "3" "2"])
-
-(def card-lbl->strength
+(defn make-card-lbl->strength [card-lbls]
   (zipcoll card-lbls (reverse (range (length card-lbls)))))
-
-(defn hand-type [hand]
-  (let [freq (frequencies hand)
-        nums (sort (values freq) >)]
-    # (pp freq)
-    # (pp nums)
-    (match nums
-      [5]   6 # five-of-a-kind
-      [4]   5 # four-of-a-kind
-      [3 2] 4 # full-house
-      [3]   3 # three-of-a-kind
-      [2 2] 2 # two-pair
-      [2]   1 # one-pair
-      [1]   0 # high-card
-      _ (error "Incorrect hand"))))
 
 (defn hands-comparator [{:type a-type :hand a-hand}
 			{:type b-type :hand b-hand}]
   (if (= a-type b-type)
     (do (var ak nil) (var bk nil) (var res 0)
-	(while true
-	  (set ak (next a-hand ak))
-	  (set bk (next b-hand bk))
-	  (when (or (nil? ak) (nil? bk)) (break))
-	  (set res (compare (in a-hand ak) (in b-hand bk)))
-	  (when (not= 0 res) (break)))
-	res)
+      (while true
+	(set ak (next a-hand ak))
+	(set bk (next b-hand bk))
+	(when (or (nil? ak) (nil? bk)) (break))
+	(set res (compare (in a-hand ak) (in b-hand bk)))
+	(when (not= 0 res) (break)))
+      res)
     (compare a-type b-type)))
 
 (defn sort-hands [hands-data]
   (sort hands-data compare<))
 
-(defn make-hand [[hand bid]]
-  @{:bid bid :hand hand :type (hand-type hand)
+(defn make-hand [type-fn [hand bid]]
+  @{:bid bid :hand hand :type (type-fn hand)
     :compare hands-comparator})
 
-
-(def hands-peg
+(defn make-hands-peg [card-lbls]
   ~{:bid  (number :d+)
     :hand (group (5 (/ (<- (set ,(string/join card-lbls "")))
-		       ,card-lbl->strength)))
+		       ,(make-card-lbl->strength card-lbls))))
     :line (group (* :hand :s+ :bid "\n"))
     :main (some :line)})
 
+(defn freqs->type [freqs]
+  (match (sort (values freqs) >)
+    [5]   6 # five-of-a-kind
+    [4]   5 # four-of-a-kind
+    [3 2] 4 # full-house
+    [3]   3 # three-of-a-kind
+    [2 2] 2 # two-pair
+    [2]   1 # one-pair
+    [1]   0 # high-card
+    _ (error "Incorrect hand")))
+
+
+(def card-lbls-p1
+  ["A" "K" "Q" "J" "T" "9" "8" "7" "6" "5" "4" "3" "2"])
+
+(defn hand-type-p1 [hand]
+  (freqs->type (frequencies hand)))
+
 (defn solve1 [input]
-  (->> (peg/match hands-peg input)
-       (map make-hand)
+  (->> (peg/match (make-hands-peg card-lbls-p1) input)
+       (map (partial make-hand hand-type-p1))
        sort-hands
        (map-indexed |(* ($1 :bid) $0) 1)
        sum))
 
 
+(def card-lbls-p2
+  (let [i (index-of "J" card-lbls-p1)]
+    (array/push
+      (array/remove (array/slice card-lbls-p1) i) "J")))
+
+(defn hand-type-p2 [hand]
+  (let [freqs (frequencies hand)]
+    (when-let [jokers-num (when (> (length freqs) 1)
+			    (freqs 0))]
+      (do
+	(put freqs 0 nil)
+	(let [max-k (first (max-pair freqs))]
+	  (update freqs max-k |(+ jokers-num $)))))
+    (freqs->type freqs)))
+
 (defn solve2 [input]
-  )
+  (->> (peg/match (make-hands-peg card-lbls-p2) input)
+       (map (partial make-hand hand-type-p2))
+       sort-hands
+       (map-indexed |(* ($1 :bid) $0) 1)
+       sum))
 
 
 (defn main [& args]
@@ -79,33 +97,20 @@ KTJJT 220
 QQQJA 483
 ` "\n"))
 
-  (+ (* 5 483)
-     (* 4 684)
-     (* 3 28)
-     (* 2 220)
-     (* 1 765))
-
-  (sort (map make-hand @[[@[1 1 8 1 1] 765]
-			 [@[1 1 7 1 1] 684]])
+  (sort (map (partial make-hand hand-type-p1)
+	     @[[@[1 1 8 1 1] 765]
+	       [@[1 1 7 1 1] 684]])
 	compare<)
 
-  (->> (peg/match
-	 ~{:bid  (number :d+)
-	   :hand (group (5 (/ (<- (set ,(string/join card-lbls "")))
-			      ,card-lbl->strength)))
-	   :line (group (* :hand :s+ :bid "\n"))
-	   :main (some :line)}
-	 sample)
-       (map make-hand)
+
+  (each hand (->> (peg/match (make-hands-peg card-lbls-p2) sample)
+		  (map (partial make-hand hand-type-p2)))
+    (pp hand))
+
+  (->> (peg/match (make-hands-peg card-lbls-p2) sample)
+       (map (partial make-hand hand-type-p2))
        sort-hands
        (map-indexed |(* ($1 :bid) $0) 1)
        sum)
   
-  (let [ds [:a :b :c]]
-    (var k nil)
-    (while true
-      (set k (next ds k))
-      (if (= nil k) (break))
-      (print (in ds k))))
-
   )
