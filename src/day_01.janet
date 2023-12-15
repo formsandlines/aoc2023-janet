@@ -1,3 +1,5 @@
+(use ./utils)
+
 (def input (slurp "../input/day_01.txt"))
 
 (def digit-words
@@ -20,15 +22,16 @@
 		  (+ (* 10 (first $)) (last $))))
     :main  (/ (some (* :line "\n")) ,+)})
 
-(defn solve1 []
+(defn solve1 [input]
   (first (peg/match (make-grammar false) input)))
 
-(defn solve2 []
+(defn solve2 [input]
   (first (peg/match (make-grammar true) input)))
 
+
 (defn main [& args]
-  (print (solve1))
-  (print (solve2)))
+  (aoc-print 1 1 (solve1 input) 54990)
+  (aoc-print 1 2 (solve2 input) 54473))
 
 
 

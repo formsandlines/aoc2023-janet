@@ -42,8 +42,8 @@
        count-all-cards))
 
 (defn main [& args]
-  (print (solve1 input))
-  (print (solve2 input)))
+  (aoc-print 4 1 (solve1 input) 32001)
+  (aoc-print 4 2 (solve2 input) 5037841))
 
 
 

@@ -75,9 +75,10 @@
 	 (map gear-ratio)
 	 sum)))
 
+
 (defn main [& args]
-  (print (solve1 input))
-  (print (solve2 input)))
+  (aoc-print 3 1 (solve1 input) 519444)
+  (aoc-print 3 2 (solve2 input) 74528807))
 
 
 
