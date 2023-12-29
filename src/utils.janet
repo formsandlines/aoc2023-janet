@@ -44,6 +44,21 @@
 (defn ^ [pat]
   ~(* (! ,pat) 1))
 
+(defmacro set-t [b]
+  ~(if (boolean? ,b)
+     (set ,b true)
+     (error "Not a boolean!")))
+
+(defmacro set-f [b]
+  ~(if (boolean? ,b)
+     (set ,b false)
+     (error "Not a boolean!")))
+
+(defmacro set-not [b]
+  ~(if (boolean? ,b)
+     (set ,b (not ,b))
+     (error "Not a boolean!")))
+
 (defn map-indexed
   "`map` with an additional index (first arg), like in Clojure.
 Unlike in Clojure, takes an additional integer `from` as the starting index."
@@ -111,6 +126,11 @@ efficient)."
 
 
 (comment
+  (do (var x true)
+    (pp x)
+    (set-not x)
+    (pp x))
+
   (let [xs @[12 18 24]]
     (->> xs
 	 (map math/factor)
