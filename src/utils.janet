@@ -8,6 +8,9 @@
     (print "   Incorrect, oh noes! Expected: " solution))
   (print))
 
+(defn aoc-example [s]
+  (string s "\n"))
+
 (defn table-from-entries [entries]
   (table ;(flatten entries)))
 
