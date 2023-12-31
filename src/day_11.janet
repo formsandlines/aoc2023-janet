@@ -8,7 +8,7 @@
     :line (* (some (+ :char ".")) "\n")
     :main (some :line)})
 
-(defn expand-universe [old-galaxies]
+(defn expand-universe [factor old-galaxies]
   (let [galcols (sort (distinct (map first old-galaxies)))
 	galrows (sort (distinct (map last old-galaxies)))
 	max-galcol (last galcols)
@@ -19,8 +19,8 @@
 	    expand-y? (and (<= i max-galrow) (not (has-value? galrows i)))]
 	(when (or expand-x? expand-y?)
 	  (eachp [k [x y]] old-galaxies
-	    (let [inc-x (if (and expand-x? (> x i)) 1 0)
-		  inc-y (if (and expand-y? (> y i)) 1 0)]
+	    (let [inc-x (if (and expand-x? (> x i)) (dec factor) 0)
+		  inc-y (if (and expand-y? (> y i)) (dec factor) 0)]
 	      (when (or (> inc-x 0) (> inc-y 0))
 		(update galaxies k |[(+ ($ 0) inc-x)
 				     (+ ($ 1) inc-y)])))))))
@@ -35,18 +35,21 @@
 
 (defn solve1 [input]
   (->> (peg/match galaxies-peg input)
-       expand-universe
+       (expand-universe 2)
        shortest-paths-between
        sum))
 
 
 (defn solve2 [input]
-  nil)
+  (->> (peg/match galaxies-peg input)
+       (expand-universe 1000000)
+       shortest-paths-between
+       sum))
 
 
 (defn main [& args]
   (aoc-print 11 1 (solve1 input) 10231178)
-  (aoc-print 11 2 (solve2 input) "???"))
+  (aoc-print 11 2 (solve2 input) 622120986954))
 
 
 (comment
@@ -68,7 +71,7 @@
     (/ (* n (dec n)) 2))
 
   (let [galaxies (peg/match galaxies-peg ex1)]
-    (let [galaxies-expanded (expand-universe galaxies)
+    (let [galaxies-expanded (expand-universe 2 galaxies)
 	  shortest-paths (shortest-paths-between galaxies-expanded)]
       (sum shortest-paths)))
   
@@ -81,6 +84,11 @@
   ## 7: 8,9 -> 10,11
   ## 8: 1,10 -> 1,12
   ## 9: 5,10 -> 6,12
+
+  (let [galaxies (peg/match galaxies-peg ex1)]
+    (let [galaxies-expanded (expand-universe 10 galaxies)
+	  shortest-paths (shortest-paths-between galaxies-expanded)]
+      (sum shortest-paths)))
 
   )
 
